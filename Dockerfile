@@ -42,6 +42,11 @@ RUN sed -ri -e 's!/var/www!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 # Enable Apache Mod Rewrite
 RUN a2enmod rewrite
 
+# Disable conflicting MPM modules and enable prefork
+RUN a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
+
+# Enable Apache Mod Rewrite
+RUN a2enmod rewrite
 # Expose port 80
 EXPOSE 80
 
