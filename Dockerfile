@@ -25,8 +25,12 @@ WORKDIR /var/www/html
 # Copy existing application directory contents
 COPY . /var/www/html
 
+# Install PHP dependencies via Composer
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
 # Set permissions for Laravel storage & bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Configure Apache DocumentRoot to point to Laravel's public folder
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
@@ -35,3 +39,9 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
 # Enable Apache Mod Rewrite
 RUN a2enmod rewrite
+
+# Expose port 80
+EXPOSE 80
+
+# Start Apache in foreground
+CMD ["apache2-foreground"]
