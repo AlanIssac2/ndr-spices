@@ -35,17 +35,13 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Configure Apache DocumentRoot to point to Laravel's public folder
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
-
-# Change Apache port from 80 to 10000 for Render
-RUN echo "Listen 10000" >> /etc/apache2/ports.conf
-RUN sed -i 's/:80/:10000/g' /etc/apache2/sites-available/000-default.conf
+RUN sed -ri -e 's!/var/www!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
 # Enable Apache Mod Rewrite
 RUN a2enmod rewrite
 
-# Expose port 10000
-EXPOSE 10000
+# Expose port 80
+EXPOSE 80
 
 # Start Apache in foreground
 CMD ["apache2-foreground"]
