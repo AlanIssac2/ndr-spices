@@ -1,4 +1,4 @@
-FROM php:8.3-apache
+FROM php:8.3-cli
 
 # Install system dependencies & extensions
 RUN apt-get update && apt-get install -y \
@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions including zip and intl
+# Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl
 
 # Get latest Composer
@@ -34,21 +34,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Configure Apache DocumentRoot to point to Laravel's public folder
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
-
-# Enable Apache Mod Rewrite
-RUN a2enmod rewrite
-
-# Fix MPM module conflict completely by removing event/worker load configs
-RUN rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_event.conf \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.load /etc/apache2/mods-enabled/mpm_worker.conf \
-    && a2enmod mpm_prefork
-
-# Expose port 80
+# Expose port 80 (Railway maps this automatically)
 EXPOSE 80
 
-# Start Apache in foreground
-CMD ["apache2-foreground"]
+# Start Laravel using PHP's built-in web server bound to port 80
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
