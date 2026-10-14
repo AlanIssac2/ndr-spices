@@ -37,11 +37,15 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
+# Configure Apache to listen on port 10000 (Required by Render)
+RUN sed -i 's/Listen 80/Listen 10000/g' /etc/apache2/ports.conf
+RUN sed -i 's/:80/:10000/g' /etc/apache2/sites-available/000-default.conf
+
 # Enable Apache Mod Rewrite
 RUN a2enmod rewrite
 
-# Expose port 80
-EXPOSE 80
+# Expose port 10000
+EXPOSE 10000
 
 # Start Apache in foreground
 CMD ["apache2-foreground"]
