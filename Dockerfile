@@ -29,10 +29,14 @@ WORKDIR /var/www/html
 # Copy existing application directory contents
 COPY . /var/www/html
 
-# Install PHP dependencies via Composer
+# Install Node.js for Vite asset compilation
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
+# Install Composer dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Install Node dependencies and build Vite frontend assets
+# Build frontend assets for production
 RUN npm install && npm run build
 
 # Set permissions for Laravel storage & bootstrap/cache
