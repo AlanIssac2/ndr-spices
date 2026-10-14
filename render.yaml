@@ -3,7 +3,6 @@ services:
     name: ndr-spices
     env: docker
     plan: free
-    region: oregon # or whichever region you prefer
     envVars:
       - key: APP_KEY
         generateValue: true
